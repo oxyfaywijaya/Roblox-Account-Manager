@@ -15,6 +15,7 @@ The dashboard shows the aggregate **only for accounts with successfully retrieve
 
 - This feature does **not** collect, display, export, or log account cookies or passwords.
 - It reuses the existing account session and read-only balance query.
+- The transaction button uses a dedicated stricter browser mode: no `--disable-web-security` flag, no ignored HTTPS errors, no custom pre/post navigation scripts, no loaded extensions, and no configured proxies. Other upstream browser features retain their existing behavior.
 - **Never commit** account data, .ROBLOSECURITY cookies, passwords, browser profiles, or exports with session information to a repository.
 - The upstream project is archived and includes older dependencies. Review security and compatibility before using it for valuable accounts.
 - The dashboard has not yet been compiled or tested on Windows in this PR.
