@@ -140,7 +140,7 @@ namespace RBX_Alt_Manager.Forms
 
             // Use RAM's existing account-specific browser. No token is copied to
             // clipboard, URL, logs, or another application.
-            new AccountBrowser(account, "https://www.roblox.com/transactions");
+            new AccountBrowser(account, "https://www.roblox.com/transactions", SecureBrowsing: true);
         }
 
         private async Task RefreshBalancesAsync()
