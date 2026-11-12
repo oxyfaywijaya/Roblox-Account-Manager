@@ -631,6 +631,11 @@ namespace RBX_Alt_Manager
             return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "/UC";
         }
 
+        private void OpenRobuxDashboard()
+        {
+            new RobuxDashboardForm(AccountsList?.ToList() ?? new List<Account>()).Show(this);
+        }
+
         private void AccountManager_Load(object sender, EventArgs e)
         {
             PasswordPanel.Dock = DockStyle.Fill;
@@ -670,6 +675,19 @@ namespace RBX_Alt_Manager
                 ResetEncryption();
 
             ApplyTheme();
+
+            var robuxDashboardItem = new ToolStripMenuItem("Robux Dashboard (F9)");
+            robuxDashboardItem.Click += (sender, args) => OpenRobuxDashboard();
+            AccountsStrip.Items.Insert(0, robuxDashboardItem);
+            KeyPreview = true;
+            KeyDown += (sender, args) =>
+            {
+                if (args.KeyCode == Keys.F9)
+                {
+                    OpenRobuxDashboard();
+                    args.Handled = true;
+                }
+            };
 
             RGForm.RecentGameSelected += (sender, e) => { PlaceID.Text = e.Game.Details?.placeId.ToString(); };
 

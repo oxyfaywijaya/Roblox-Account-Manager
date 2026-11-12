@@ -30,6 +30,8 @@ namespace RBX_Alt_Manager.Classes
         private readonly HashSet<string> Solved = new HashSet<string>();
         private ProxyClient Proxy = null;
         private string Password;
+        // Opt-in hardened mode for viewing the official transactions page.
+        private bool secureBrowsing;
 
         public Browser browser;
         public Page page;
@@ -38,8 +40,9 @@ namespace RBX_Alt_Manager.Classes
 
         public AccountBrowser() { }
 
-        public AccountBrowser(Account account, string Url = null, string Script = null, Func<Page, Task> PostNavigation = null)
+        public AccountBrowser(Account account, string Url = null, string Script = null, Func<Page, Task> PostNavigation = null, bool SecureBrowsing = false)
         {
+            secureBrowsing = SecureBrowsing;
             _ = LaunchBrowser(Url ?? string.Empty, Script: Script, PostNavigation: PostNavigation, PostPageCreation: () => page.SetCookieAsync(new CookieParam
             {
                 Name = ".ROBLOSECURITY",
@@ -61,15 +64,15 @@ namespace RBX_Alt_Manager.Classes
             else
                 Position = new Vector2(Screen.PrimaryScreen.WorkingArea.Width / 2 - (Size.X / 2), Screen.PrimaryScreen.WorkingArea.Height / 2 - (Size.Y / 2));
 
-            List<string> Args = new List<string>(Arguments ?? new string[] { "--disable-web-security" });
+            List<string> Args = new List<string>(Arguments ?? (secureBrowsing ? Array.Empty<string>() : new string[] { "--disable-web-security" }));
 
             string ExtensionPath = Path.Combine(Environment.CurrentDirectory, "extension");
             string ConfigPath = Path.Combine(Environment.CurrentDirectory, "BrowserConfig.json");
             BrowserConfig Config = null;
 
-            if (Directory.Exists(ExtensionPath))
+            if (!secureBrowsing && Directory.Exists(ExtensionPath))
                 Args.AddRange(new string[] { $@"--disable-extensions-except=""{ExtensionPath}""", $@"--load-extension=""{ExtensionPath}""" });
-            if (File.Exists(ConfigPath))
+            if (!secureBrowsing && File.Exists(ConfigPath))
                 File.ReadAllText(ConfigPath).TryParseJson(out Config);
 
             if (Config?.CustomArguments != null) Args.AddRange(Config.CustomArguments);
@@ -80,7 +83,7 @@ namespace RBX_Alt_Manager.Classes
             string ProxiesPath = Path.Combine(Environment.CurrentDirectory, "proxies.txt");
             string ProxyString = string.Empty, Username = string.Empty, Password = string.Empty;
 
-            if (AccountManager.General.Get<bool>("UseProxies") && File.Exists(ProxiesPath))
+            if (!secureBrowsing && AccountManager.General.Get<bool>("UseProxies") && File.Exists(ProxiesPath))
             { // Format: [optional protocol://]ip:port@user:pass / socks5://1.2.3.4:999@user:pass
                 Random Rng = new Random();
                 int Timeout = AccountManager.General.Exists("ProxyTimeout") ? AccountManager.General.Get<int>("ProxyTimeout") : 3000;
@@ -138,7 +141,7 @@ namespace RBX_Alt_Manager.Classes
                 }
             }
 
-            var Options = new LaunchOptions { Headless = false, DefaultViewport = null, Args = Args.ToArray(), IgnoreHTTPSErrors = true };
+            var Options = new LaunchOptions { Headless = false, DefaultViewport = null, Args = Args.ToArray(), IgnoreHTTPSErrors = !secureBrowsing };
 
             await Fetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
 
