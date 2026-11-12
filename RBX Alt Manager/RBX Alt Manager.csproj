@@ -412,6 +412,7 @@
     <Compile Include="Forms\MissingAssets.Designer.cs">
       <DependentUpon>MissingAssets.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\RobuxDashboardForm.cs" />
     <Compile Include="Forms\RecentGamesForm.cs">
       <SubType>Form</SubType>
     </Compile>
